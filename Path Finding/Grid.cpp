@@ -1,12 +1,13 @@
 #include "Grid.h"
+#include <imgui.h>
 
-Grid::Grid(sf::RenderWindow& Window) : window(&Window), size(50.f) {
+Grid::Grid(sf::RenderWindow& Window, sf::RectangleShape& background) : window(&Window), size(50.f), drawable_area(&background) {
     reinitialize(size, guiMarginRight);
 }
 
 Position Grid::getDimensions() {
-    int cols = static_cast<int>((window->getSize().x - guiMarginRight) / size);
-    int rows = static_cast<int>(window->getSize().y / size);
+    int cols = static_cast<int>(drawable_area->getSize().x / size);
+    int rows = static_cast<int>(drawable_area->getSize().y / size);
     return { cols, rows };
 }
 
@@ -40,12 +41,12 @@ void Grid::draw() {
             node.draw();
 }
 
-std::ostream& operator<<(std::ostream& os, const Position& pos) {
+static std::ostream& operator<<(std::ostream& os, const Position& pos) {
     os << '(' << pos.x << ", " << pos.y << ')';
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const NodeState& state) {
+static std::ostream& operator<<(std::ostream& os, const NodeState& state) {
     switch (state) {
     case NodeState::Unblocked: os << "Unblocked"; break;
     case NodeState::Blocked: os << "Blocked"; break;
@@ -57,10 +58,10 @@ std::ostream& operator<<(std::ostream& os, const NodeState& state) {
     return os;
 }
 
-void Grid::printNodeData(Node& node) {
+/*void Grid::printNodeData(Node& node) {
     Position pos = node.getWorldPosition();
     NodeState state = node.getState();
-
+        
     std::cout << "Node: " << pos << "\n";
     std::cout << "State: " << state << "\n";
 
@@ -76,13 +77,16 @@ void Grid::printNodeData(Node& node) {
         std::cout << "F: None, G: None, H: None\n";
         std::cout << "Parent: None\n\n";
     }
-}
+}*/
 
-void Grid::mouseHover(Pos mousePos) {
-    for (auto& col : nodes)
-        for (auto& node : col)
+Node* Grid::on_mouse_hover(Pos mousePos) {
+    for (auto& col : nodes) {
+        for (auto& node : col) {
             if (node.contains(mousePos))
-                printNodeData(node);
+                return &node;
+        }
+    }
+    return nullptr;
 }
 
 void Grid::Reset() {

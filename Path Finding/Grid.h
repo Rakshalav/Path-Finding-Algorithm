@@ -14,19 +14,19 @@ private:
     Position targetPos = { -1, -1 };
 
     sf::RenderWindow* window;
+    sf::RectangleShape* drawable_area;
+
     std::vector<std::vector<Node>> nodes;
 
-    void printNodeData(Node& node);
-
 public:
-    Grid(sf::RenderWindow& window);
+    Grid(sf::RenderWindow& window, sf::RectangleShape& background);
 
     void draw();
     void updateColor(Pos mousePos, NodeState state);
     void Reset();
-    void mouseHover(Pos mousePos);
+    Node* on_mouse_hover(Pos mousePos);
 
     std::vector<std::vector<Node>>& getNodeData() { return nodes; }
     Position getDimensions();
-    void reinitialize(float newSize, float newMarginRight = 100.f);
+    void reinitialize(float newSize, float newMarginRight = 400.f);
 };

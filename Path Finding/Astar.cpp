@@ -162,7 +162,7 @@ void Astar::searchPath()
     {
         auto current = *openList.begin();
         openList.erase(openList.begin());
-        Position pos = std::get<1>(current);
+        auto& pos = std::get<1>(current);
         closedList.insert(pos);
 
         float fnew, gnew, hnew;
@@ -185,7 +185,7 @@ void Astar::searchPath()
         else
             directions = { D.N + pos, D.NE + pos, D.E + pos, D.SE + pos, D.S + pos, D.SW + pos, D.W + pos, D.NW + pos };
 
-        for (auto direction : directions) {
+        for (auto& direction : directions) {
             if (isValid(direction)) {
                 auto& node = nodes[direction.x][direction.y];
                 if (isDestination(direction)) {

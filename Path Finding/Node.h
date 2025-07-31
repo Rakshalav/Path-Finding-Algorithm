@@ -26,10 +26,9 @@ private:
 	Position gridPos;
 
 	sf::RenderWindow* window;
-	sf::Vector2i renderSize;
 
 public:
-	inline static float guiMarginRight = 100.f; // right-side margin
+	inline static float guiMarginRight = 400.f; // right-side margin
 
 	Node();
 
@@ -52,7 +51,6 @@ public:
 	void Reset(NodeState state);
 	void setSize(Pos Size) { size = Size; node.setSize(Size); }
 	void setWindow(sf::RenderWindow& win) { window = &win; }
-	void setRenderSize(sf::Vector2i size) { renderSize = size; }
 
 	// getters
 	Pos& getPosition() { return position; }
