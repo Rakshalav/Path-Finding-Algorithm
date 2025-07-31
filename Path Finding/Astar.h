@@ -66,6 +66,7 @@ public:
 	void searchPath();
 	void clearContainers();
 	void drawVisited();
+	void resetVisited();
 
 	//setters
 	void setMethod(Method newMethod) { method = newMethod; }

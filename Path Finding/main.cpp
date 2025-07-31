@@ -99,8 +99,11 @@ int main()
             }
 
             if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Space)
-                    grid.Reset();
+                if (event.key.code == sf::Keyboard::Space) {
+                    grid.Reset(); 
+                    a_star.clearContainers();
+                }
+
                 else if (event.key.code == sf::Keyboard::Escape)
                     window.close();
             }
@@ -146,11 +149,22 @@ int main()
 
             //display visited cell
             ImGui::Checkbox("Show Visited Nodes", &display_visited_node);
+
+            //Miscellaneous
+            ImGui::SeparatorText("Miscellaneous");
+            if (ImGui::Button("Clear Grid")) {
+                grid.Reset();
+                a_star.clearContainers();
+            }
         }
         ImGui::End();
 
         if (display_visited_node)
             a_star.drawVisited();
+        else {
+            a_star.resetVisited();
+        }
+
 
 
         //output window

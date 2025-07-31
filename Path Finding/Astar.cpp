@@ -111,6 +111,19 @@ void Astar::tracePath() {
     }
 }
 
+void Astar::resetVisited() {
+    if (!closedList.empty()) {
+        for (auto& pos : closedList) {
+            auto& node = nodes[pos.x][pos.y];
+            auto state = node.getState();
+            if (state == NodeState::Visited) {
+                node.setState(NodeState::Unblocked);
+                node.changeColor(NodeState::Unblocked);
+            }
+        }
+    }
+}
+
 void Astar::drawVisited() {
     if (!closedList.empty()) {
         for (const auto& pos : closedList) {
