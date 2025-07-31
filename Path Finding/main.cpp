@@ -10,6 +10,43 @@ static sf::Vector2f getmousePos(sf::RenderWindow& window) {
     return worldPos;
 }
 
+static void displayNodeData(Node* node)
+{
+    auto& name = node->getWorldPosition();
+    auto& state = node->getState();
+
+    ImGui::Text("Node: (%d, %d)", name.x, name.y);
+
+    switch (state)
+    {
+        case NodeState::Unblocked: ImGui::Text("State: Unblocked"); break;
+        case NodeState::Blocked: ImGui::Text("State: Blocked"); break;
+        case NodeState::Visited: ImGui::Text("State: Visited"); break;
+        case NodeState::Target: ImGui::Text("State: Target"); break;
+        case NodeState::Source: ImGui::Text("State: Source"); break;
+        case NodeState::Path: ImGui::Text("State: Path"); break;
+    }
+
+    if (state == NodeState::Path || state == NodeState::Visited)
+    {
+        ImGui::Text("F: %f, G: %f, H: %f", node->getFcost(), node->getGcost(), node->getHcost());
+        ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
+    }
+    else if (state == NodeState::Target)
+    {
+        ImGui::Text("F: None, G: None, H: None");
+        if (node->getParent() == sf::Vector2i{ -1, -1 })
+            ImGui::Text("Parent: None");
+        else
+            ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
+    }
+    else
+    {
+        ImGui::Text("F: None, G: None, H: None");
+        ImGui::Text("Parent: None");
+    }
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1900, 1000), "Pathfinding", sf::Style::Close);
@@ -38,7 +75,8 @@ int main()
     static int nodeSize = 50;
 
     //debug window
-    static bool display_node_data = false;
+    bool display_node_data = false;
+    bool display_visited_node = false;
 
     sf::Clock deltaClock;
     while (window.isOpen())
@@ -102,62 +140,35 @@ int main()
             if (ImGui::SliderInt("Size", &nodeSize, 10, 100))
                 grid.reinitialize(static_cast<float>(nodeSize));
 
-            // toggle debug window
+            // display node data
             ImGui::SeparatorText("Debug Tools");
             ImGui::Checkbox("Display Node Data", &display_node_data);
-            ImGui::Text("Checkbox state: %s", display_node_data ? "ON" : "OFF");
+
+            //display visited cell
+            ImGui::Checkbox("Show Visited Nodes", &display_visited_node);
         }
         ImGui::End();
+
+        if (display_visited_node)
+            a_star.drawVisited();
+
 
         //output window
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(1500, 600), ImGuiCond_Always);
 
-        if (ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize))
-        {
-            if (display_node_data == true)
-            {
-                Node* node = grid.on_mouse_hover(mousePos);
-                std::cout << "Should Print data\n";
+        ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize);
 
-                if (node)
-                {
-                    std::cout << "Node Data\n";
-                    auto name = node->getWorldPosition();
-                    auto state = node->getState();
-
-                    ImGui::Text("Node: (%d, %d)", name.x, name.y);
-
-                    switch (state)
-                    {
-                    case NodeState::Unblocked: ImGui::Text("State: Unblocked"); break;
-                    case NodeState::Blocked: ImGui::Text("State: Blocked"); break;
-                    case NodeState::Visited: ImGui::Text("State: Visited"); break;
-                    case NodeState::Target: ImGui::Text("State: Target"); break;
-                    case NodeState::Source: ImGui::Text("State: Source"); break;
-                    case NodeState::Path: ImGui::Text("State: Path"); break;
-                    }
-
-                    if (state == NodeState::Path || state == NodeState::Visited)
-                    {
-                        ImGui::Text("F: %f, G: %f, H: %f", node->getFcost(), node->getGcost(), node->getHcost());
-                        ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
-                    }
-                    else if (state == NodeState::Target)
-                    {
-                        ImGui::Text("F: None, G: None, H: None");
-                        ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
-                    }
-                    else
-                    {
-                        ImGui::Text("F: None, G: None, H: None");
-                        ImGui::Text("Parent: None");
-                    }
-                }
-                else ImGui::Text("No node under mouse.");
+        if (display_node_data) {
+            auto* node = grid.on_mouse_hover(mousePos);
+            if (node != nullptr) {
+                displayNodeData(node);
             }
         }
+ 
         ImGui::End();
+
+
 
         if (method == Manhattan_Distance)
             a_star.setMethod(Manhattan_Distance);

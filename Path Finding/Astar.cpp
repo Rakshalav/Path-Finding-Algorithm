@@ -112,15 +112,18 @@ void Astar::tracePath() {
 }
 
 void Astar::drawVisited() {
-    for (const auto& pos : closedList) {
-        auto& node = nodes[pos.x][pos.y];
-        auto state = node.getState();
-        if (state != NodeState::Source && state != NodeState::Target && 
-            state != NodeState::Blocked && state != NodeState::Path) {
-            node.setState(NodeState::Visited);
-            node.changeColor(NodeState::Visited);
+    if (!closedList.empty()) {
+        for (const auto& pos : closedList) {
+             auto& node = nodes[pos.x][pos.y];
+             auto state = node.getState();
+             if (state != NodeState::Source && state != NodeState::Target && 
+                state != NodeState::Blocked && state != NodeState::Path) {
+                node.setState(NodeState::Visited);
+                node.changeColor(NodeState::Visited);
+             }
         }
     }
+    return;
 }
 
 bool Astar::areEmpty() {
@@ -191,7 +194,6 @@ void Astar::searchPath()
                 if (isDestination(direction)) {
                     node.setParent(pos);
                     tracePath();
-                    drawVisited();
                     foundDest = true;
                     return;
                 }

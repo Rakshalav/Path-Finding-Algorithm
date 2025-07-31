@@ -60,12 +60,12 @@ private:
 	bool isDestination(Position position); // to find whether we reached our destination
 	void tracePath(); // trace path from source to destination
 	float calculateHval(Position currentPos);
-	void drawVisited();
 
 public:
 	Astar(Grid& _grid) : grid(_grid), nodes(_grid.getNodeData()) {}
 	void searchPath();
 	void clearContainers();
+	void drawVisited();
 
 	//setters
 	void setMethod(Method newMethod) { method = newMethod; }

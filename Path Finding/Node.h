@@ -53,13 +53,13 @@ public:
 	void setWindow(sf::RenderWindow& win) { window = &win; }
 
 	// getters
-	Pos& getPosition() { return position; }
-	Attribute& getNodeAttribute() { return attribute; }
-	float& getFcost() { return attribute.F; }
-	float& getGcost() { return attribute.G; }
-	float& getHcost() { return attribute.H; }
-	NodeState& getState() { return attribute.state; }
-	Position& getParent() { return parent; }
-	Position& getWorldPosition() { return gridPos; }
-	Pos getSize() { return size; }
+	const Pos& getPosition() const { return position; }
+	const Attribute& getNodeAttribute() { return attribute; }
+	const float& getFcost() const { return attribute.F; }
+	const float& getGcost() const { return attribute.G; }
+	const float& getHcost() const { return attribute.H; }
+	const NodeState& getState() const { return attribute.state; }
+	const Position& getParent() const { return parent; }
+	const Position& getWorldPosition() const { return gridPos; }
+	const Pos& getSize() const { return size; }
 };
