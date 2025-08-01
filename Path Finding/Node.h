@@ -37,12 +37,9 @@ public:
 	bool contains(Pos point) { return node.getGlobalBounds().contains(point); }
 	void changeColor(NodeState state);
 
-	// pos converters
-	static Pos WorldtoScreen(Position worldpos, float spacing = 50.0f);
-	static Position ScreentoWorld(Pos screenpos, float spacing = 50.0f);
-
 	// setters
-	void setPosition(const Pos& pos1, const Position& pos2);
+	void setPosition(const Position& gridpos) { gridPos = gridpos; }
+	void setScreenPos(const Position gridPos, float spacing);
 	void setState(NodeState newstate) { attribute.state = newstate; }
 	void setParent(const Position& P) { parent = P; }
 	void setFcost(float f) { attribute.F = f; }
@@ -62,4 +59,6 @@ public:
 	const Position& getParent() const { return parent; }
 	const Position& getWorldPosition() const { return gridPos; }
 	const Pos& getSize() const { return size; }
+
+	friend void displayNodeData(Node);
 };

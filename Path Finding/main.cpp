@@ -10,10 +10,14 @@ static sf::Vector2f getmousePos(sf::RenderWindow& window) {
     return worldPos;
 }
 
-static void displayNodeData(Node* node)
+void displayNodeData(Node node)
 {
-    auto& name = node->getWorldPosition();
-    auto& state = node->getState();
+    const auto name = node.gridPos;
+    const auto state = node.attribute.state;
+    const auto F = node.attribute.F;
+    const auto G = node.attribute.G;
+    const auto H = node.attribute.H;
+    const auto parent = node.parent;
 
     ImGui::Text("Node: (%d, %d)", name.x, name.y);
 
@@ -29,16 +33,16 @@ static void displayNodeData(Node* node)
 
     if (state == NodeState::Path || state == NodeState::Visited)
     {
-        ImGui::Text("F: %f, G: %f, H: %f", node->getFcost(), node->getGcost(), node->getHcost());
-        ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
+        ImGui::Text("F: %f, G: %f, H: %f", F, G, H);
+        ImGui::Text("Parent: (%d, %d)", parent.x, parent.y);
     }
     else if (state == NodeState::Target)
     {
         ImGui::Text("F: None, G: None, H: None");
-        if (node->getParent() == sf::Vector2i{ -1, -1 })
+        if (parent == sf::Vector2i{ -1, -1 })
             ImGui::Text("Parent: None");
         else
-            ImGui::Text("Parent: (%d, %d)", node->getParent().x, node->getParent().y);
+            ImGui::Text("Parent: (%d, %d)", parent.x, parent.y);
     }
     else
     {
@@ -165,8 +169,6 @@ int main()
             a_star.resetVisited();
         }
 
-
-
         //output window
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(1500, 600), ImGuiCond_Always);
@@ -174,8 +176,9 @@ int main()
         ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize);
 
         if (display_node_data) {
-            auto* node = grid.on_mouse_hover(mousePos);
-            if (node != nullptr) {
+            auto maybenode = grid.on_mouse_hover(mousePos);
+            if (maybenode.has_value()) {
+                auto node = *maybenode;
                 displayNodeData(node);
             }
         }

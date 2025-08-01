@@ -2,7 +2,6 @@
 
 Node::Node() {
 	node.setSize({ 50.f, 50.f });
-	node.setOrigin(node.getSize() / 2.f);
 	node.setOutlineColor(sf::Color::Black);
 	node.setOutlineThickness(1);
 	node.setFillColor(sf::Color::White);
@@ -35,24 +34,9 @@ void Node::changeColor(NodeState state) {
 	}
 }
 
-void Node::setPosition(const Pos& pos1, const Position& pos2) {
-	position = pos1;
-	node.setPosition(pos1);
-	gridPos = pos2;
-}
-
-Pos Node::WorldtoScreen(Position worldpos, float spacing) {
-	return Pos(
-		worldpos.x * spacing + spacing / 2.f,
-		worldpos.y * spacing + spacing / 2.f
-	);
-}
-
-Position Node::ScreentoWorld(Pos screenpos, float spacing) {
-	return Position(
-		static_cast<int>((screenpos.x - spacing / 2.f) / spacing),
-		static_cast<int>((screenpos.y - spacing / 2.f) / spacing)
-	);
+void Node::setScreenPos(Position gridPos, float spacing) {
+	position = { gridPos.x * spacing, gridPos.y * spacing };
+	node.setPosition(position);	
 }
 
 void Node::Reset(NodeState state) {

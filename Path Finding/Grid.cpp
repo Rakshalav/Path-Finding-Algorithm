@@ -1,5 +1,4 @@
 #include "Grid.h"
-#include <imgui.h>
 
 Grid::Grid(sf::RenderWindow& Window, sf::RectangleShape& background) : window(&Window), size(50.f), drawable_area(&background) {
     reinitialize(size, guiMarginRight);
@@ -26,10 +25,10 @@ void Grid::reinitialize(float newSize, float newMarginRight) {
     for (int x = 0; x < cols; ++x) {
         for (int y = 0; y < rows; ++y) {
             Position gridPos(x, y);
-            Pos screenPos = Node::WorldtoScreen(gridPos, size);
             auto& node = nodes[x][y];
             node.setWindow(*window);
-            node.setPosition(screenPos, gridPos);
+            node.setPosition(gridPos);
+            node.setScreenPos(gridPos, size);
             node.setSize({ size, size });
         }
     }
@@ -41,52 +40,14 @@ void Grid::draw() {
             node.draw();
 }
 
-static std::ostream& operator<<(std::ostream& os, const Position& pos) {
-    os << '(' << pos.x << ", " << pos.y << ')';
-    return os;
-}
-
-static std::ostream& operator<<(std::ostream& os, const NodeState& state) {
-    switch (state) {
-    case NodeState::Unblocked: os << "Unblocked"; break;
-    case NodeState::Blocked: os << "Blocked"; break;
-    case NodeState::Target: os << "Target"; break;
-    case NodeState::Source: os << "Source"; break;
-    case NodeState::Path: os << "Path"; break;
-    case NodeState::Visited: os << "Visited"; break;
-    }
-    return os;
-}
-
-/*void Grid::printNodeData(Node& node) {
-    Position pos = node.getWorldPosition();
-    NodeState state = node.getState();
-        
-    std::cout << "Node: " << pos << "\n";
-    std::cout << "State: " << state << "\n";
-
-    if (state == NodeState::Path || state == NodeState::Visited) {
-        std::cout << "F: " << node.getFcost() << ", G: " << node.getGcost() << ", H: " << node.getHcost() << "\n";
-        std::cout << "Parent: " << node.getParent() << "\n\n";
-    }
-    else if (state == NodeState::Target) {
-        std::cout << "F: None, G: None, H: None\n";
-        std::cout << "Parent: " << node.getParent() << "\n\n";
-    }
-    else {
-        std::cout << "F: None, G: None, H: None\n";
-        std::cout << "Parent: None\n\n";
-    }
-}*/
-
-Node* Grid::on_mouse_hover(Pos mousePos) {
+std::optional<Node> Grid::on_mouse_hover(Pos mousePos) {
     for (auto& col : nodes) {
         for (auto& node : col) {
             if (node.contains(mousePos))
-                return &node;
+                return node;
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 void Grid::Reset() {

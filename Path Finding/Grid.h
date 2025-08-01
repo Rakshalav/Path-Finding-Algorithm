@@ -3,6 +3,7 @@
 #include <vector>
 #include "Node.h"
 #include <iostream>
+#include <optional>
 
 class Grid {
 private:
@@ -24,7 +25,7 @@ public:
     void draw();
     void updateColor(Pos mousePos, NodeState state);
     void Reset();
-    Node* on_mouse_hover(Pos mousePos);
+    std::optional<Node> on_mouse_hover(Pos mousePos);
 
     std::vector<std::vector<Node>>& getNodeData() { return nodes; }
     Position getDimensions();
