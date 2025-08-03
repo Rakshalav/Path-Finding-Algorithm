@@ -4,13 +4,15 @@
 #include "Grid.h"
 #include "Astar.h"
 
+constexpr float FPS = 60.0f;
+
 static sf::Vector2f getmousePos(sf::RenderWindow& window) {
     sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
     return worldPos;
 }
 
-void displayNodeData(Node node)
+static void displayNodeData(Node node)
 {
     const auto name = node.gridPos;
     const auto state = node.attribute.state;
@@ -23,12 +25,12 @@ void displayNodeData(Node node)
 
     switch (state)
     {
-        case NodeState::Unblocked: ImGui::Text("State: Unblocked"); break;
-        case NodeState::Blocked: ImGui::Text("State: Blocked"); break;
-        case NodeState::Visited: ImGui::Text("State: Visited"); break;
-        case NodeState::Target: ImGui::Text("State: Target"); break;
-        case NodeState::Source: ImGui::Text("State: Source"); break;
-        case NodeState::Path: ImGui::Text("State: Path"); break;
+    case NodeState::Unblocked: ImGui::Text("State: Unblocked"); break;
+    case NodeState::Blocked: ImGui::Text("State: Blocked"); break;
+    case NodeState::Visited: ImGui::Text("State: Visited"); break;
+    case NodeState::Target: ImGui::Text("State: Target"); break;
+    case NodeState::Source: ImGui::Text("State: Source"); break;
+    case NodeState::Path: ImGui::Text("State: Path"); break;
     }
 
     if (state == NodeState::Path || state == NodeState::Visited)
@@ -54,6 +56,7 @@ void displayNodeData(Node node)
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1900, 1000), "Pathfinding", sf::Style::Close);
+    window.setFramerateLimit(65);
     ImGui::SFML::Init(window);
 
     sf::RectangleShape backGround;
@@ -68,7 +71,7 @@ int main()
     backGround.setPosition({ 0.0f, 0.0f });
 
     Grid grid(window, backGround);
-
+    grid.initialize();
     Astar a_star(grid);
 
     // slider Method
@@ -80,13 +83,14 @@ int main()
 
     //debug window
     bool display_node_data = false;
-    bool display_visited_node = false;
 
-    sf::Clock deltaClock;
+    sf::Clock clock;
+    const float Fixed_dt = 1.0f / FPS;
+
     while (window.isOpen())
     {
         sf::Event event;
-      
+
         while (window.pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(event);
@@ -104,7 +108,7 @@ int main()
 
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Space) {
-                    grid.Reset(); 
+                    grid.Reset();
                     a_star.clearContainers();
                 }
 
@@ -113,7 +117,7 @@ int main()
             }
         }
 
-        ImGui::SFML::Update(window, deltaClock.restart());
+        ImGui::SFML::Update(window, clock.restart());
 
         sf::Vector2f mousePos = getmousePos(window);
         if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
@@ -151,23 +155,15 @@ int main()
             ImGui::SeparatorText("Debug Tools");
             ImGui::Checkbox("Display Node Data", &display_node_data);
 
-            //display visited cell
-            ImGui::Checkbox("Show Visited Nodes", &display_visited_node);
-
             //Miscellaneous
             ImGui::SeparatorText("Miscellaneous");
             if (ImGui::Button("Clear Grid")) {
                 grid.Reset();
                 a_star.clearContainers();
+                a_star.resetAstar();
             }
         }
         ImGui::End();
-
-        if (display_visited_node)
-            a_star.drawVisited();
-        else {
-            a_star.resetVisited();
-        }
 
         //output window
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Always);
@@ -182,10 +178,8 @@ int main()
                 displayNodeData(node);
             }
         }
- 
+
         ImGui::End();
-
-
 
         if (method == Manhattan_Distance)
             a_star.setMethod(Manhattan_Distance);

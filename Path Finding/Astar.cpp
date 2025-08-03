@@ -62,7 +62,9 @@ void Astar::clearContainers() {
     openList.clear();
     closedList.clear();
     path.clear();
+}
 
+void Astar::resetAstar() {
     for (auto& col : nodes) {
         for (auto& node : col) {
             auto state = node.getState();
@@ -109,34 +111,6 @@ void Astar::tracePath() {
             node->changeColor(NodeState::Path);
         }
     }
-}
-
-void Astar::resetVisited() {
-    if (!closedList.empty()) {
-        for (auto& pos : closedList) {
-            auto& node = nodes[pos.x][pos.y];
-            auto state = node.getState();
-            if (state == NodeState::Visited) {
-                node.setState(NodeState::Unblocked);
-                node.changeColor(NodeState::Unblocked);
-            }
-        }
-    }
-}
-
-void Astar::drawVisited() {
-    if (!closedList.empty()) {
-        for (const auto& pos : closedList) {
-             auto& node = nodes[pos.x][pos.y];
-             auto state = node.getState();
-             if (state != NodeState::Source && state != NodeState::Target && 
-                state != NodeState::Blocked && state != NodeState::Path) {
-                node.setState(NodeState::Visited);
-                node.changeColor(NodeState::Visited);
-             }
-        }
-    }
-    return;
 }
 
 bool Astar::areEmpty() {
@@ -218,11 +192,12 @@ void Astar::searchPath()
 
                     if (node.getFcost() == FLT_MAX || node.getFcost() > fnew) {
                         openList.emplace(std::make_pair(fnew, direction));
-                        closedList.insert(direction);
                         node.setParent(pos);
                         node.setGcost(gnew);
                         node.setHcost(hnew);
                         node.setFcost(fnew);
+                        node.setState(NodeState::Visited);
+                        node.changeColor(NodeState::Visited);
                     }
                 }
             }

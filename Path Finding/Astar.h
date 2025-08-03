@@ -9,7 +9,6 @@
 #include <unordered_set>
 #include <iostream>
 
-typedef sf::Vector2i Position; // [x, y]
 typedef std::pair<float, Position> Pair; // [F, Position]
 
 // Lowest F cost has highest priority
@@ -26,13 +25,6 @@ struct Compare {
 		if (posA.x != posB.x)
 			return posA.x < posB.x;
 		return posA.y < posB.y;
-	}
-};
-
-// hash sf::Vector2i to store and access
-struct Vector2i_Hash {
-	size_t operator()(const sf::Vector2i& p) const {
-		return std::hash<int>()(p.x) ^ (std::hash<int>()(p.y) << 1);
 	}
 };
 
@@ -65,8 +57,7 @@ public:
 	Astar(Grid& _grid) : grid(_grid), nodes(_grid.getNodeData()) {}
 	void searchPath();
 	void clearContainers();
-	void drawVisited();
-	void resetVisited();
+	void resetAstar();
 
 	//setters
 	void setMethod(Method newMethod) { method = newMethod; }

@@ -10,18 +10,7 @@ Position Grid::getDimensions() {
     return { cols, rows };
 }
 
-void Grid::reinitialize(float newSize, float newMarginRight) {
-    size = newSize;
-    guiMarginRight = newMarginRight;
-    Node::guiMarginRight = newMarginRight;
-
-    Position dim = getDimensions();
-    cols = dim.x;
-    rows = dim.y;
-
-    nodes.clear();
-    nodes.resize(cols, std::vector<Node>(rows));
-
+void Grid::initialize() {
     for (int x = 0; x < cols; ++x) {
         for (int y = 0; y < rows; ++y) {
             Position gridPos(x, y);
@@ -30,6 +19,46 @@ void Grid::reinitialize(float newSize, float newMarginRight) {
             node.setPosition(gridPos);
             node.setScreenPos(gridPos, size);
             node.setSize({ size, size });
+        }
+    }
+}
+
+void Grid::reinitialize(float newSize, float newMarginRight) {
+    size = newSize;
+    guiMarginRight = newMarginRight;
+    Node::guiMarginRight = newMarginRight;
+
+    Position dim = getDimensions(); 
+    cols = dim.x;
+    rows = dim.y;
+
+    std::vector<Node> tempNodes;
+    for (auto& col : nodes) {
+        for (auto& node : col) {
+            if (node.getState() != NodeState::Unblocked) {
+                tempNodes.push_back(node);
+            }
+        }
+    }
+
+    nodes.clear();
+    nodes.resize(cols, std::vector<Node>(rows));
+
+    for (const auto& node : tempNodes) {
+        Position pos = node.getWorldPosition();
+        if (pos.x >= 0 && pos.x < cols && pos.y >= 0 && pos.y < rows) {
+            nodes[pos.x][pos.y] = node;
+        }
+    }
+
+    for (int x = 0; x < cols; ++x) {
+        for (int y = 0; y < rows; ++y) {
+            Position gridPos(x, y);
+            auto& node = nodes[x][y];
+            node.setWindow(*window);
+            node.setPosition(gridPos);                
+            node.setScreenPos(gridPos, size);         
+            node.setSize({ size, size });              
         }
     }
 }
