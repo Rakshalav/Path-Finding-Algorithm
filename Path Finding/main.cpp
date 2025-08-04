@@ -53,6 +53,19 @@ static void displayNodeData(Node node)
     }
 }
 
+static void printError(Astar& a_star) {
+    auto error = a_star.getError();
+    switch (error)
+    {
+    case Unknown:
+        ImGui::Text("Error: Unknown!");
+        break;
+    case NoSourceNode:
+        ImGui::Text("Error: No Starting Node selected!");
+        break;
+    }
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1900, 1000), "Pathfinding", sf::Style::Close);
@@ -79,13 +92,15 @@ int main()
     const char* method_names[Method_Count] = { "Manhattan Distance", "Diagonal Distance", "Euclidean Distance" };
 
     // Node size
-    static int nodeSize = 50;
+    static int nodeSize = 0;
 
     //debug window
     bool display_node_data = false;
 
+    static int delayMs = 0;
+    static bool wantDelay = false;
+
     sf::Clock clock;
-    const float Fixed_dt = 1.0f / FPS;
 
     while (window.isOpen())
     {
@@ -137,8 +152,10 @@ int main()
             // Run algorithm
             ImGui::SeparatorText("Run Algorithm");
             if (ImGui::Button("Start A*")) {
-                a_star.clearContainers(); // Add: reset states before running
-                a_star.searchPath();
+                if (wantDelay)
+                    a_star.startSearch(delayMs);
+                else
+                    a_star.searchPath();
             }
 
             //Method Slider
@@ -157,6 +174,11 @@ int main()
 
             //Miscellaneous
             ImGui::SeparatorText("Miscellaneous");
+
+            ImGui::Checkbox("Want Delay?", &wantDelay);
+            if (wantDelay)
+                ImGui::SliderInt("Delay", &delayMs, 0, 100);
+
             if (ImGui::Button("Clear Grid")) {
                 grid.Reset();
                 a_star.clearContainers();
@@ -171,6 +193,7 @@ int main()
 
         ImGui::Begin("Output", nullptr, ImGuiWindowFlags_NoResize);
 
+        printError(a_star);
         if (display_node_data) {
             auto maybenode = grid.on_mouse_hover(mousePos);
             if (maybenode.has_value()) {
@@ -187,6 +210,15 @@ int main()
             a_star.setMethod(Diagonal_Distance);
         else if (method == Euclidean_Distance)
             a_star.setMethod(Euclidean_Distance);
+
+        if (wantDelay) {
+            if (a_star.isSearchRunning()) {
+                bool finished = a_star.stepSearch();
+                if (finished) {
+                    a_star.tracePath();
+                }
+            }
+        }
 
         window.clear();
         window.draw(backGround);

@@ -8,6 +8,8 @@
 #include <utility>
 #include <unordered_set>
 #include <iostream>
+#include <chrono>
+#include "imgui.h"
 
 typedef std::pair<float, Position> Pair; // [F, Position]
 
@@ -32,6 +34,10 @@ enum Method {
 	Manhattan_Distance, Diagonal_Distance, Euclidean_Distance, Method_Count
 };
 
+enum Error {
+	NoError, Unknown, NoSourceNode
+};
+
 class Astar
 {
 private:
@@ -41,23 +47,33 @@ private:
 	std::vector<std::vector<Node>>& nodes;
 	std::set<Pair, Compare> openList;
 	std::unordered_set<Position, Vector2i_Hash> closedList;
-	std::vector<Node*> path;
 
 	Method method;
+	Error error;
+
+	bool isRunning = false;
+	std::chrono::steady_clock::time_point lastStepTime;
+	int delayMs = 0;
 
 	// helper functions
 	bool areEmpty();
-	bool isValid(Position position); // to check whether the cell exists or not
-	bool isUnblocked(Position position); // to check whether the state of the cell is blocked or not
-	bool isDestination(Position position); // to find whether we reached our destination
-	void tracePath(); // trace path from source to destination
+	bool isValid(Position position); 
+	bool isUnblocked(Position position); 
+	bool isDestination(Position position); 
 	float calculateHval(Position currentPos);
 
 public:
-	Astar(Grid& _grid) : grid(_grid), nodes(_grid.getNodeData()) {}
-	void searchPath();
+	Astar(Grid& _grid) : grid(_grid), nodes(_grid.getNodeData()), error(NoError) {}
 	void clearContainers();
 	void resetAstar();
+	void searchPath();
+
+	void startSearch(int delay);   
+	bool stepSearch();            
+	bool isSearchRunning() const { return isRunning; }
+	void tracePath();
+
+	Error getError() { return error; }
 
 	//setters
 	void setMethod(Method newMethod) { method = newMethod; }
