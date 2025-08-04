@@ -1,1 +1,1 @@
-A simple programme which visualises A8 algorithm
+A simple programme which visualises A* algorithm
